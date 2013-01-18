@@ -4,11 +4,12 @@
 #define H 128
 
 TVout tv;
-unsigned char x,y;
+//unsigned char x,y;
 char s[32];
 
 
 void setup()  {
+  Serial.begin(115200);
   tv.begin(PAL, W, H);
   initOverlay();
   initInputProcessing();
@@ -47,12 +48,41 @@ ISR(INT0_vect) {
 }
 
 void loop() {
+  bool matchfound=false;
+  unsigned char x, y;
   tv.capture();
   //tv.fill(INVERT);
-  tv.resume();
+  
+  FilterNoise();
+  for(x=0; x<H; x++)
+  {
+    for(y=0; y<H; y++)
+      if(tv.get_pixel(x,y))
+      {
+        if(!MatchX(x,y))
+          ClearArea(x,y);
+        else
+          {matchfound=true;
+          break;
+          }
+      }
+      if(matchfound)
+        break;
+  }
+  
+  if(matchfound)
+  {
+    Serial.print("Object detectad at ");
+    Serial.print(x);
+    Serial.print(", ");
+    Serial.print(y);
+    Serial.println(".");
+  }
+
   tv.set_pixel(10,10, 0);
   tv.set_pixel(11,11, 1);
   tv.set_pixel(12,12, 2);
+  tv.resume();
   tv.delay_frame(5);
 }
 
