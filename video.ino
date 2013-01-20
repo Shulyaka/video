@@ -1,5 +1,5 @@
 #include <TVout.h>
-#include <fontALL.h>
+//#include <fontALL.h>
 #define W 128
 #define H 128
 
@@ -14,7 +14,7 @@ void setup()  {
   initOverlay();
   initInputProcessing();
 
-  tv.select_font(font4x6);
+//  tv.select_font(font4x6);
   tv.fill(0);
 }
 
@@ -51,18 +51,21 @@ void loop() {
   bool matchfound=false;
   unsigned char x, y;
   tv.capture();
-  //tv.fill(INVERT);
+  tv.fill(INVERT);
   
-  FilterNoise();
-  for(x=0; x<H; x++)
+  //FilterNoise();
+  
+  for(y=0; y<H; y++)
   {
-    for(y=0; y<H; y++)
+    for(x=0; x<W; x++)
       if(tv.get_pixel(x,y))
       {
         if(!MatchX(x,y))
-          ClearArea(x,y);
+          {ClearArea(x,y);
+          }
         else
           {matchfound=true;
+          //ClearArea(x,y);
           break;
           }
       }
@@ -77,11 +80,12 @@ void loop() {
     Serial.print(", ");
     Serial.print(y);
     Serial.println(".");
+    tv.draw_rect(x-5, y-5, 10, 10, 1);
   }
+  else
+    Serial.println("Object not detected");
 
-  tv.set_pixel(10,10, 0);
-  tv.set_pixel(11,11, 1);
-  tv.set_pixel(12,12, 2);
+  //tv.fill(INVERT);
   tv.resume();
   tv.delay_frame(5);
 }
