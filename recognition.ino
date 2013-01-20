@@ -18,43 +18,49 @@ void FilterNoise(void)  //filters the noise in the frame
 }
 
 void ClearArea(unsigned char x, unsigned char y)  //Clears the linked area recursively
-{                                                 //WARNING: The current implemetation only clears lines > y and pixels >=x on the current line
-  unsigned char i;                                //has a bug currently (may leave a subarea) but the fix would make the performance twice worse
-  for(i=x; (i<W)&&(tv.get_pixel(i, y)); i++)  //find the right bound
-    continue;
+{                                                 //the function may be optimized to exclude bound search in certain cases
+  unsigned char r, i;                             //stack usage may also be optimized
+  for(r=x; (r<W)&&(tv.get_pixel(r, y)); r++)  //find the right bound
+    continue;                                     //the bound search may also be optimized by probing by a batch of 8 points, might require an enhancement of tvout library
 
-  if(i==x)
+  if(r==x)
     return; //pixel already 0
 
-  tv.draw_row(y, x, i--, 0);
-
-  if(++y==H)
-    return;
-
-//  Serial.print("x=");
-//  Serial.println(x);
-  for(i--; (i>=x)&&(i<W); i--)
-  {
-//    Serial.println(i);
-    if(!tv.get_pixel(i, y))
-    {
-      if(tv.get_pixel(i+1, y))
-        ClearArea(i+1, y);
-      else
-        i--;
-    }
-  }
+  for(x--; (x!=255)&&(tv.get_pixel(x, y)); x--)  //find the left bound
+    continue;
   
-  if(tv.get_pixel(x, y))
+  tv.draw_row(y, ++x, r--, 0);                      //was: "--r", might be a bug in TVout.cpp:400, may need to change to "rbit = ~(0xff >> ((x1+1)&7));", to check later.
+
+  if(++y!=H)
   {
-    for(i=x-1; (i!=255)&&(tv.get_pixel(i, y)); i--)
-    {
-  //    Serial.print("a");
-      continue;
-    }
-   // Serial.println("A");
-    ClearArea(i+1, y);
+    for(i=r-1; (i>=x)&&(i<W); i--)
+      if(!tv.get_pixel(i, y))
+      {
+        if(tv.get_pixel(i+1, y))
+          ClearArea(i+1, y);
+        else
+          i--;
+      }
+  
+    if(tv.get_pixel(x, y))
+      ClearArea(x, y);
   }
+
+  if((y-=2)!=255)
+  {
+    for(i=r-1; (i>=x)&&(i<W); i--)
+      if(!tv.get_pixel(i, y))
+      {
+        if(tv.get_pixel(i+1, y))
+          ClearArea(i+1, y);
+        else
+          i--;
+      }
+  
+    if(tv.get_pixel(x, y))
+      ClearArea(x, y);
+  }
+
   return;
 }
 
@@ -117,28 +123,26 @@ bool IsLinkedLine(unsigned char x1, unsigned char y1, unsigned char x2, unsigned
 bool IsLinkedLine(unsigned char x1, unsigned char y1, unsigned char x2, unsigned char y2)
 {
   unsigned char i, j;
-  return true;
+//  return true;
   i=median(x1, x2);
   j=median(y1, y2);
-
+/*
   Serial.print("(");
+  Serial.print(x1);
+  Serial.print(", ");
+  Serial.print(y1);
+  Serial.print(") - (");
   Serial.print(i);
   Serial.print(", ");
   Serial.print(j);
+  Serial.print(") - (");
+  Serial.print(x2);
+  Serial.print(", ");
+  Serial.print(y2);
   Serial.println(")");
-
-  if(!tv.get_pixel(i, j))
-  {
-    if((i>0) && tv.get_pixel(i-1, j))  //check the nearest also
-      return true;
-    if((j>0) && tv.get_pixel(i, j-1))
-      return true;
-    if((i+1<W) && tv.get_pixel(i+1, j))
-      return true;
-    if((j+1<H) && tv.get_pixel(i, j+1))
-      return true;
+*/
+  if((!tv.get_pixel(i, j)) && !((i>0)&&tv.get_pixel(i-1, j)) && !((j>0) && tv.get_pixel(i, j-1)) && !((i+1<W) && tv.get_pixel(i+1, j)) && !((j+1<H) && tv.get_pixel(i, j+1)))  //check the nearest also
     return false;
-  }
   if(((i==x1)&&(j==y1))||((i==x2)&&(j==y2))) //stop condition
     return true;
   return IsLinkedLine(i, j, x2, y2) && IsLinkedLine(x1, y1, i, j);
@@ -243,5 +247,5 @@ unsigned char length_ru(unsigned char x, unsigned char y, unsigned char *a, unsi
 }
 
 inline unsigned char median(unsigned char a, unsigned char b)
-{return (b>a)?((b-a)<<1)+a:((a-b)<<1)+b;}
+{return (b>a)?((b-a)>>1)+a:((a-b)>>1)+b;}
 
