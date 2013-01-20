@@ -49,7 +49,7 @@ ISR(INT0_vect) {
 
 void loop() {
   bool matchfound=false;
-  unsigned char x, y;
+  unsigned char x, y, cx, cy;
   tv.capture();
   tv.fill(INVERT);
   
@@ -60,8 +60,8 @@ void loop() {
     for(x=0; x<W; x++)
       if(tv.get_pixel(x,y))
       {
-        if(!MatchX(x,y))
-          {ClearArea(x,y);
+        if(!MatchX(x,y,&cx,&cy))  // validate the object
+          {ClearArea(x,y);  //clear the object if not X to avoid double-checking
           }
         else
           {matchfound=true;
@@ -79,8 +79,13 @@ void loop() {
     Serial.print(x);
     Serial.print(", ");
     Serial.print(y);
-    Serial.println(".");
+    Serial.print(" (");
+    Serial.print(cx);
+    Serial.print(", ");
+    Serial.print(cy);
+    Serial.println(").");
     tv.draw_rect(x-5, y-5, 10, 10, 1);
+    tv.draw_rect(cx-5, cy-5, 10, 10, 1);
   }
   else
     Serial.println("Object not detected");
