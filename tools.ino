@@ -1,3 +1,15 @@
+bool IsLinkedLine(unsigned char x1, unsigned char y1, unsigned char x2, unsigned char y2)
+{
+  unsigned char i, j;
+  i=median(x1, x2);
+  j=median(y1, y2);
+  if((!tv.get_pixel(i, j)) && !((i>0)&&tv.get_pixel(i-1, j)) && !((j>0) && tv.get_pixel(i, j-1)) && !((i<W-1) && tv.get_pixel(i+1, j)) && !((j<H-1) && tv.get_pixel(i, j+1)))  //check the nearest also
+    return false;
+  if(((i==x1)&&(j==y1))||((i==x2)&&(j==y2))) //stop condition
+    return true;
+  return IsLinkedLine(i, j, x2, y2) && IsLinkedLine(x1, y1, i, j);
+}
+
 unsigned char length_dr(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
 {
   unsigned char i=x, j=y, length=0;
