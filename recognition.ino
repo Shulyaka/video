@@ -64,13 +64,15 @@ void ClearArea(unsigned char x, unsigned char y)  //Clears the linked area recur
   return;
 }
 
-bool MatchX(unsigned char x, unsigned char y, unsigned char *cx, unsigned char *cy)  //returns true if the area is a cross (X)
+bool MatchX(unsigned char x0, unsigned char y0, unsigned char *cx, unsigned char *cy)  //returns true if the area is a cross (X)
 {                                              //the function assumes that we are close to the top of the object
   unsigned char lengtha, lengthb;
-  unsigned char i, j, ax, ay, bx, by, x0, y0, x3, y3, x6, y6, x9, y9;
+  unsigned char i, j, ax, ay, bx, by, x3, y3, x6, y6, x9, y9;
 
-  lengtha=length_dr(x, y, &ax, &ay) + length_ul(x, y, &x, &y);
-  lengthb=length_dl(x, y, &bx, &by) + length_ur(x, y, &i, &j);
+  move_ul(x0, y0, &x0, &y0);
+  lengtha=length_dr(x0, y0, &ax, &ay);// + length_ul(x0, y0, &i, &j);
+  move_ur(x0, y0, &x0, &y0);
+  lengthb=length_dl(x0, y0, &bx, &by);// + length_ur(x0, y0, &i, &j);
 
   Serial.print("length (");
   Serial.print(lengtha);
@@ -80,10 +82,7 @@ bool MatchX(unsigned char x, unsigned char y, unsigned char *cx, unsigned char *
   
   if(lengtha>>2 > lengthb) //left-upper corner of X
   {
-    x0=x;
-    y0=y;
-    x6=ax;
-    y6=ay;
+    move_dr(x0, y0, &x6, &y6);
     move_rd(x0, y0, &i, &j);
     move_ru(i, j, &x3, &y3);
     move_lu(x6, y6, &i, &j);
@@ -159,10 +158,7 @@ bool MatchX(unsigned char x, unsigned char y, unsigned char *cx, unsigned char *
   }
   else if(lengthb>>2 > lengtha) //right-upper corner of X
   {
-    x0=x;
-    y0=y;
-    x6=ax;
-    y6=ay;
+    move_dl(x0, y0, &x6, &y6);
     move_ld(x0, y0, &i, &j);
     move_lu(i, j, &x9, &y9);
     move_ru(x6, y6, &i, &j);
@@ -239,9 +235,9 @@ bool MatchX(unsigned char x, unsigned char y, unsigned char *cx, unsigned char *
   else if(lengtha>>2 > (ax-bx))
   {
     Serial.print("Might be a + at (");
-    Serial.print(x);
+    Serial.print(x0);
     Serial.print(", ");
-    Serial.print(y);
+    Serial.print(y0);
     Serial.println(")");
   }
   else
