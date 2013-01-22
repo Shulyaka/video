@@ -1,5 +1,5 @@
 void FilterNoise(void)  //filters the noise in the frame
-{
+{                       //currently is too slow
   unsigned char c, n, cp, cn;
   for (unsigned char x=1; x<W-1; x++)
     for (unsigned char y=1; y<H-1; y++)
@@ -70,7 +70,6 @@ bool MatchX(unsigned char x, unsigned char y, unsigned char *cx, unsigned char *
   unsigned char i, j, ax, ay, bx, by, x0, y0, x3, y3, x6, y6, x9, y9;
 
   lengtha=length_dr(x, y, &ax, &ay) + length_ul(x, y, &x, &y);
-
   lengthb=length_dl(x, y, &bx, &by) + length_ur(x, y, &i, &j);
 
   Serial.print("length (");
@@ -89,7 +88,7 @@ bool MatchX(unsigned char x, unsigned char y, unsigned char *cx, unsigned char *
     move_ru(i, j, &x3, &y3);
     move_lu(x6, y6, &i, &j);
     move_ld(i, j, &x9, &y9);
-    Serial.print("0=");
+    Serial.print("R\n0=");
     Serial.print(x0);
     Serial.print(", ");
     Serial.println(y0);
@@ -106,26 +105,50 @@ bool MatchX(unsigned char x, unsigned char y, unsigned char *cx, unsigned char *
     Serial.print(", ");
     Serial.println(y3);
 
-    if(dif(x0,x3)+dif(y0,y3)<lengtha>>1)
+    if(dif(x0,x3)+dif(y0,y3)<lengtha>>2)
     {
+      Serial.print("0-3=");
       Serial.println(dif(x0,x3)+dif(y0,y3));
       return false;
     }
-    if(dif(x3,x6)+dif(y3,y6)<lengtha>>1)
+    if(dif(x3,x6)+dif(y3,y6)<lengtha>>2)
     {
+      Serial.print("3-6=");
       Serial.println(dif(x3,x6)+dif(y3,y6));
       return false;
     }
-    if(dif(x6,x9)+dif(y6,y9)<lengtha>>1)
+    if(dif(x6,x9)+dif(y6,y9)<lengtha>>2)
     {
+      Serial.print("6-9=");
       Serial.println(dif(x6,x9)+dif(y6,y9));
       return false;
     }
-    if(dif(x9,x0)+dif(y9,y0)<lengtha>>1)
+    if(dif(x9,x0)+dif(y9,y0)<lengtha>>2)
     {
+      Serial.print("9-0=");
       Serial.println(dif(x9,x0)+dif(y9,y0));
       return false;
     }
+
+    lengtha=length_rd(x3, y3, &i, &j) + length_lu(x3, y3, &i, &j);
+    lengthb=length_ld(x3, y3, &i, &j) + length_ru(x3, y3, &i, &j);
+    if(!(lengtha>>2 > lengthb) && !(lengthb>>2 > lengtha))
+    {
+      Serial.println("Failed check at point 3");
+      Serial.println(lengtha);
+      Serial.println(lengthb);
+      return false;
+    }
+    lengtha=length_dr(x9, y9, &i, &j) + length_ul(x9, y9, &i, &j);
+    lengthb=length_dl(x9, y9, &i, &j) + length_ur(x9, y9, &i, &j);
+    if(!(lengtha>>2 > lengthb) && !(lengthb>>2 > lengtha))
+    {
+      Serial.println("Failed check at point 9");
+      Serial.println(lengtha);
+      Serial.println(lengthb);
+      return false;
+    }
+
     ax=median(x0, x6);
     ay=median(y0, y6);
     bx=median(x9, x3);
@@ -136,8 +159,82 @@ bool MatchX(unsigned char x, unsigned char y, unsigned char *cx, unsigned char *
   }
   else if(lengthb>>2 > lengtha) //right-upper corner of X
   {
+    x0=x;
+    y0=y;
+    x6=ax;
+    y6=ay;
+    move_ld(x0, y0, &i, &j);
+    move_lu(i, j, &x9, &y9);
+    move_ru(x6, y6, &i, &j);
+    move_rd(i, j, &x3, &y3);
+    Serial.print("L\n0=");
+    Serial.print(x0);
+    Serial.print(", ");
+    Serial.println(y0);
+    Serial.print("6=");
+    Serial.print(x6);
+    Serial.print(", ");
+    Serial.println(y6);
+    Serial.print("9=");
+    Serial.print(x9);
+    Serial.print(", ");
+    Serial.println(y9);
+    Serial.print("3=");
+    Serial.print(x3);
+    Serial.print(", ");
+    Serial.println(y3);
 
-    return false;
+    if(dif(x0,x3)+dif(y0,y3)<lengtha>>2)
+    {
+      Serial.print("0-3=");
+      Serial.println(dif(x0,x3)+dif(y0,y3));
+      return false;
+    }
+    if(dif(x3,x6)+dif(y3,y6)<lengtha>>2)
+    {
+      Serial.print("3-6=");
+      Serial.println(dif(x3,x6)+dif(y3,y6));
+      return false;
+    }
+    if(dif(x6,x9)+dif(y6,y9)<lengtha>>2)
+    {
+      Serial.print("6-9=");
+      Serial.println(dif(x6,x9)+dif(y6,y9));
+      return false;
+    }
+    if(dif(x9,x0)+dif(y9,y0)<lengtha>>2)
+    {
+      Serial.print("9-0=");
+      Serial.println(dif(x9,x0)+dif(y9,y0));
+      return false;
+    }
+
+    lengtha=length_rd(x3, y3, &i, &j) + length_lu(x3, y3, &i, &j);
+    lengthb=length_ld(x3, y3, &i, &j) + length_ru(x3, y3, &i, &j);
+    if(!(lengtha>>2 > lengthb) && !(lengthb>>2 > lengtha))
+    {
+      Serial.println("Failed check at point 3");
+      Serial.println(lengtha);
+      Serial.println(lengthb);
+      return false;
+    }
+    lengtha=length_dr(x9, y9, &i, &j) + length_ul(x9, y9, &i, &j);
+    lengthb=length_dl(x9, y9, &i, &j) + length_ur(x9, y9, &i, &j);
+    if(!(lengtha>>2 > lengthb) && !(lengthb>>2 > lengtha))
+    {
+      Serial.println("Failed check at point 9");
+      Serial.println(lengtha);
+      Serial.println(lengthb);
+      return false;
+    }
+
+    ax=median(x0, x6);
+    ay=median(y0, y6);
+    bx=median(x9, x3);
+    by=median(y9, y3);
+    *cx=median(ax, bx);
+    *cy=median(ay, by);
+    return true;
   }
   else if(lengtha>>2 > (ax-bx))
   {
@@ -147,6 +244,8 @@ bool MatchX(unsigned char x, unsigned char y, unsigned char *cx, unsigned char *
     Serial.print(y);
     Serial.println(")");
   }
+  else
+    return false;
   
   return false;
 }

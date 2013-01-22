@@ -4,9 +4,6 @@
 #define H 128
 
 TVout tv;
-//unsigned char x,y;
-char s[32];
-
 
 void setup()  {
   Serial.begin(115200);
@@ -17,7 +14,6 @@ void setup()  {
 //  tv.select_font(font4x6);
   tv.fill(0);
 }
-
 
 void initOverlay() {
   TCCR1A = 0;
