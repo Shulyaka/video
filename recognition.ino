@@ -1,3 +1,35 @@
+bool CaptureAndFind(unsigned char *cx, unsigned char *cy)
+{
+  bool matchfound=false;
+  unsigned char x, y;
+  
+  tv.capture();
+  tv.fill(INVERT);
+  
+  //FilterNoise();
+  
+  for(y=0; y<H; y++)
+  {
+    for(x=0; x<W; x++)
+      if(tv.get_pixel(x,y))
+      {
+        if(!MatchX(x,y,cx,cy))  // validate the object
+          {ClearArea(x,y);  //clear the object if not X to avoid double-checking
+          }
+        else
+          {
+            tv.resume();
+            return true;
+          }
+      }
+  }
+  
+  tv.resume();
+  *cx=0;
+  *cy=0;
+  return false;
+}
+
 void FilterNoise(void)  //filters the noise in the frame
 {                       //currently is too slow
   unsigned char c, n, cp, cn;

@@ -1,12 +1,20 @@
+#include <Wire.h>
 #include <TVout.h>
-//#include <fontALL.h>
+
+#include "fplib.h"
+#include "quaternionlib.h"
+
 #define W 128
 #define H 128
 
 TVout tv;
 
+bool debug=true;
+
 void setup()  {
   Serial.begin(115200);
+  clear_cmdBuf();
+  Wire.begin();
   tv.begin(PAL, W, H);
   initOverlay();
   initInputProcessing();
@@ -25,7 +33,7 @@ void initOverlay() {
 
   // Enable external interrupt INT0 on pin 2 with falling edge.
   EIMSK = _BV(INT0);
-  EICRA = _BV(ISC11);
+  EICRA = _BV(ISC01);
 }
 
 void initInputProcessing() {
@@ -44,50 +52,14 @@ ISR(INT0_vect) {
 }
 
 void loop() {
-  bool matchfound=false;
-  unsigned char x, y, cx, cy;
-  tv.capture();
-  tv.fill(INVERT);
-  
-  //FilterNoise();
-  
-  for(y=0; y<H; y++)
-  {
-    for(x=0; x<W; x++)
-      if(tv.get_pixel(x,y))
-      {
-        if(!MatchX(x,y,&cx,&cy))  // validate the object
-          {ClearArea(x,y);  //clear the object if not X to avoid double-checking
-          }
-        else
-          {matchfound=true;
-          //ClearArea(x,y);
-          break;
-          }
-      }
-      if(matchfound)
-        break;
-  }
-  
-  if(matchfound)
-  {
-    Serial.print("Object detectad at ");
-    Serial.print(x);
-    Serial.print(", ");
-    Serial.print(y);
-    Serial.print(" (");
-    Serial.print(cx);
-    Serial.print(", ");
-    Serial.print(cy);
-    Serial.println(").");
-    tv.draw_rect(x-5, y-5, 10, 10, 1);
-    tv.draw_rect(cx-5, cy-5, 10, 10, 1);
-  }
-  else
-    Serial.println("Object not detected");
 
-  //tv.fill(INVERT);
-  tv.resume();
+  cmd_cross();
+
   tv.delay_frame(5);
 }
 
+void error (const char *msg)
+{
+  Serial.print("Error: ");
+  Serial.println(msg);
+}
