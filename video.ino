@@ -13,14 +13,17 @@ bool debug=true;
 
 void setup()  {
   Serial.begin(115200);
+  Serial.println("\nInitializing... ");
   clear_cmdBuf();
   Wire.begin();
+  sonar_init();
   tv.begin(PAL, W, H);
   initOverlay();
   initInputProcessing();
 
 //  tv.select_font(font4x6);
   tv.fill(0);
+  Serial.println("OK");
 }
 
 void initOverlay() {
@@ -53,9 +56,11 @@ ISR(INT0_vect) {
 
 void loop() {
 
-  cmd_cross();
+  cmd_rangea();
+  
+  //cmd_cross();
+  //tv.delay_frame(5);
 
-  tv.delay_frame(5);
 }
 
 void error (const char *msg)

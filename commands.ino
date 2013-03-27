@@ -11,18 +11,19 @@ void cmd_debug(int flag)
   Serial.print(" now.\n");
 }
 
-void cmd_sonara(void)
+void cmd_rangea(void)
 {
-  Serial.print("Sonar A: The debug flag is ");
-  Serial.print(debug);
-  Serial.print(" now.\n");
+  sonara_measure();
+  Serial.print("Sonar A range is ");
+  Serial.print(rangea);
+  Serial.print(".\n");
 }
 
-void cmd_sonarb(void)
+void cmd_rangeb(void)
 {
-  Serial.print("Sonar B: The debug flag is ");
-  Serial.print(debug);
-  Serial.print(" now.\n");
+  Serial.print("Sonar B range is ");
+  Serial.print(rangeb);
+  Serial.print(".\n");
 }
 
 void cmd_cross(void)

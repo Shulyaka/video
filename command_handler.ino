@@ -1,7 +1,7 @@
 #define CMDUNKNOWN 0
 #define CMDPING    1 // echo test
-#define CMDSONARA  2
-#define CMDSONARB  3
+#define CMDRANGEA  2
+#define CMDRANGEB  3
 #define CMDCROSS   4
 #define CMDDEBUG   9 // toggle debug flag
 #define CMDUSR1    13
@@ -52,11 +52,11 @@ void serialEvent(void)
     case CMDDEBUG:
       cmd_debug(param);
       break;
-    case CMDSONARA:
-      cmd_sonara();
+    case CMDRANGEA:
+      cmd_rangea();
       break;
-    case CMDSONARB:
-      cmd_sonarb();
+    case CMDRANGEB:
+      cmd_rangeb();
       break;
     case CMDCROSS:
       cmd_cross();
@@ -88,10 +88,10 @@ unsigned char parse_cmd(int *param)
   }
   if (!memcmp(cmdBuf,"cross",5))
     return CMDCROSS;
-  if (!memcmp(cmdBuf,"sa",2))
-    return CMDSONARA;
-  if (!memcmp(cmdBuf,"sb",2))
-    return CMDSONARB;
+  if (!memcmp(cmdBuf,"ra",2))
+    return CMDRANGEA;
+  if (!memcmp(cmdBuf,"rb",2))
+    return CMDRANGEB;
 
   return CMDUNKNOWN;
 }
