@@ -13,15 +13,15 @@ bool debug=true;
 
 void setup()  {
   Serial.begin(115200);
+  Serial2.begin(115200);
   Serial.println("\nInitializing... ");
-  clear_cmdBuf();
+//  clear_cmdBuf();
   Wire.begin();
   sonar_init();
   tv.begin(PAL, W, H);
   initOverlay();
   initInputProcessing();
 
-//  tv.select_font(font4x6);
   tv.fill(0);
   Serial.println("OK");
 }
@@ -58,8 +58,9 @@ void loop() {
 
   cmd_rangea();
   
-  //cmd_cross();
-  //tv.delay_frame(5);
+//  cmd_detect();
+
+  tv.delay_frame(5);
 
 }
 

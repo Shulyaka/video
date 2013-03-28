@@ -26,7 +26,7 @@ void cmd_rangeb(void)
   Serial.print(".\n");
 }
 
-void cmd_cross(void)
+void cmd_detect(void)
 {
   unsigned char x, y;
   
