@@ -94,7 +94,7 @@ void serialEvent2(void)
   if (cmdPos2==0 || ((cmdBuf2[cmdPos2-1]!='\n') && (cmdBuf2[cmdPos2-1]!='\r')))
     return;
   if(debug) print_cmdBuf2();
-  cmd=parse_cmd(&param);
+  cmd=parse_cmd2(&param);
   clear_cmdBuf2();
   
   if(debug)
@@ -153,6 +153,30 @@ unsigned char parse_cmd(int *param)
   if (!memcmp(cmdBuf,"ra",2))
     return CMDRANGEA;
   if (!memcmp(cmdBuf,"rb",2))
+    return CMDRANGEB;
+
+  return CMDUNKNOWN;
+}
+
+unsigned char parse_cmd2(int *param)
+{
+  if (!memcmp(cmdBuf2,"ping",4))
+    return CMDPING;
+  if (!memcmp(cmdBuf2,"debug",5))
+  {
+    if (!memcmp(cmdBuf2+6,"on",2))
+      *param=true;
+    else if (!memcmp(cmdBuf2+6,"off",3))
+      *param=false;
+    else
+      return CMDUNKNOWN;
+    return CMDDEBUG;
+  }
+  if (!memcmp(cmdBuf2,"detect",5))
+    return CMDDETECT;
+  if (!memcmp(cmdBuf2,"ra",2))
+    return CMDRANGEA;
+  if (!memcmp(cmdBuf2,"rb",2))
     return CMDRANGEB;
 
   return CMDUNKNOWN;
