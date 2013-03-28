@@ -3,9 +3,8 @@ bool CaptureAndFind(unsigned char *cx, unsigned char *cy)
   unsigned char x, y;
 
   tv.capture();
-
   tv.fill(INVERT);
-  
+
   //FilterNoise();
   
   for(y=0; y<H; y++)
@@ -23,6 +22,7 @@ bool CaptureAndFind(unsigned char *cx, unsigned char *cy)
           }
       }
       serialEvent();
+      serialEvent2();
   }
   
   tv.resume();
