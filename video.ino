@@ -11,11 +11,13 @@ TVout tv;
 
 bool debug=true;
 
+quaternion imu_q=ident;
+fixed imu_z=one>>2;
+
 void setup()  {
-  Serial.begin(115200);
+  Serial.begin(57600);
   Serial2.begin(115200);
   Serial.println("\nInitializing... ");
-//  clear_cmdBuf();
   Wire.begin();
   sonar_init();
   tv.begin(PAL, W, H);
@@ -58,7 +60,7 @@ void loop() {
 
   cmd_rangea();
   
-//  cmd_detect();
+  cmd_detect();
 
   tv.delay_frame(5);
 
@@ -68,4 +70,55 @@ void error (const char *msg)
 {
   Serial.print("Error: ");
   Serial.println(msg);
+}
+
+void print(fixed val)
+{
+  int v;
+  if(val==one)
+    Serial.print(" 1.00 ( one )");
+  else
+  {
+    if(val==-one)
+      Serial.print("-1.00 (");
+    else
+    {
+      if(val>=0)
+        Serial.print(" 0.");
+      else
+        Serial.print("-0.");
+      v=abs(val.value)/0x20C49C;
+      if(v<10)
+        Serial.print("00");
+      else if(v<100)
+        Serial.print("0");
+      Serial.print(v);
+    }
+    Serial.print(" (");
+    if(val>=0) Serial.print(" ");
+    Serial.print(val.value);
+    Serial.print(" )");
+  }
+}
+
+void print(const char *name, fixed val)
+{
+  Serial.print(name);
+  Serial.print(" =");
+  print(val);
+  Serial.println("");
+}
+
+void print(const char *name, quaternion val)
+{
+  Serial.print(name);
+  Serial.print(" = [");
+  print(val.w);
+  Serial.print(",");
+  print(val.x);
+  Serial.print(",");
+  print(val.y);
+  Serial.print(",");
+  print(val.z);
+  Serial.println("]");
 }

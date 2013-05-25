@@ -107,12 +107,12 @@ bool MatchX(unsigned char x0, unsigned char y0, unsigned char *cx, unsigned char
   move_ur(x0, y0, &x0, &y0);
   lengthb=length_dl(x0, y0, &bx, &by);// + length_ur(x0, y0, &i, &j);
 
-  Serial.print("length (");
+/*  Serial.print("length (");
   Serial.print(lengtha);
   Serial.print(", ");
   Serial.print(lengthb);
   Serial.println(")");
-  
+  */
   if(lengtha>>2 > lengthb) //left-upper corner of X
   {
     move_dr(x0, y0, &x6, &y6);
@@ -120,7 +120,7 @@ bool MatchX(unsigned char x0, unsigned char y0, unsigned char *cx, unsigned char
     move_ru(i, j, &x3, &y3);
     move_lu(x6, y6, &i, &j);
     move_ld(i, j, &x9, &y9);
-    Serial.print("R\n0=");
+/*    Serial.print("R\n0=");
     Serial.print(x0);
     Serial.print(", ");
     Serial.println(y0);
@@ -136,7 +136,7 @@ bool MatchX(unsigned char x0, unsigned char y0, unsigned char *cx, unsigned char
     Serial.print(x3);
     Serial.print(", ");
     Serial.println(y3);
-
+*/
     if(dif(x0,x3)+dif(y0,y3)<lengtha>>2)
     {
       Serial.print("0-3=");
@@ -166,18 +166,18 @@ bool MatchX(unsigned char x0, unsigned char y0, unsigned char *cx, unsigned char
     lengthb=length_ld(x3, y3, &i, &j) + length_ru(x3, y3, &i, &j);
     if(!(lengtha>>2 > lengthb) && !(lengthb>>2 > lengtha))
     {
-      Serial.println("Failed check at point 3");
-      Serial.println(lengtha);
-      Serial.println(lengthb);
+  //    Serial.println("Failed check at point 3");
+    //  Serial.println(lengtha);
+      //Serial.println(lengthb);
       return false;
     }
     lengtha=length_dr(x9, y9, &i, &j) + length_ul(x9, y9, &i, &j);
     lengthb=length_dl(x9, y9, &i, &j) + length_ur(x9, y9, &i, &j);
     if(!(lengtha>>2 > lengthb) && !(lengthb>>2 > lengtha))
     {
-      Serial.println("Failed check at point 9");
-      Serial.println(lengtha);
-      Serial.println(lengthb);
+  //    Serial.println("Failed check at point 9");
+    //  Serial.println(lengtha);
+      //Serial.println(lengthb);
       return false;
     }
 
@@ -196,7 +196,7 @@ bool MatchX(unsigned char x0, unsigned char y0, unsigned char *cx, unsigned char
     move_lu(i, j, &x9, &y9);
     move_ru(x6, y6, &i, &j);
     move_rd(i, j, &x3, &y3);
-    Serial.print("L\n0=");
+/*    Serial.print("L\n0=");
     Serial.print(x0);
     Serial.print(", ");
     Serial.println(y0);
@@ -212,29 +212,29 @@ bool MatchX(unsigned char x0, unsigned char y0, unsigned char *cx, unsigned char
     Serial.print(x3);
     Serial.print(", ");
     Serial.println(y3);
-
+*/
     if(dif(x0,x3)+dif(y0,y3)<lengtha>>2)
     {
-      Serial.print("0-3=");
-      Serial.println(dif(x0,x3)+dif(y0,y3));
+  //    Serial.print("0-3=");
+    //  Serial.println(dif(x0,x3)+dif(y0,y3));
       return false;
     }
     if(dif(x3,x6)+dif(y3,y6)<lengtha>>2)
     {
-      Serial.print("3-6=");
-      Serial.println(dif(x3,x6)+dif(y3,y6));
+    //  Serial.print("3-6=");
+      //Serial.println(dif(x3,x6)+dif(y3,y6));
       return false;
     }
     if(dif(x6,x9)+dif(y6,y9)<lengtha>>2)
     {
-      Serial.print("6-9=");
-      Serial.println(dif(x6,x9)+dif(y6,y9));
+   //   Serial.print("6-9=");
+     // Serial.println(dif(x6,x9)+dif(y6,y9));
       return false;
     }
     if(dif(x9,x0)+dif(y9,y0)<lengtha>>2)
     {
-      Serial.print("9-0=");
-      Serial.println(dif(x9,x0)+dif(y9,y0));
+   //   Serial.print("9-0=");
+     // Serial.println(dif(x9,x0)+dif(y9,y0));
       return false;
     }
 
@@ -242,18 +242,18 @@ bool MatchX(unsigned char x0, unsigned char y0, unsigned char *cx, unsigned char
     lengthb=length_ld(x3, y3, &i, &j) + length_ru(x3, y3, &i, &j);
     if(!(lengtha>>2 > lengthb) && !(lengthb>>2 > lengtha))
     {
-      Serial.println("Failed check at point 3");
-      Serial.println(lengtha);
-      Serial.println(lengthb);
+  //    Serial.println("Failed check at point 3");
+    //  Serial.println(lengtha);
+      //Serial.println(lengthb);
       return false;
     }
     lengtha=length_dr(x9, y9, &i, &j) + length_ul(x9, y9, &i, &j);
     lengthb=length_dl(x9, y9, &i, &j) + length_ur(x9, y9, &i, &j);
     if(!(lengtha>>2 > lengthb) && !(lengthb>>2 > lengtha))
     {
-      Serial.println("Failed check at point 9");
-      Serial.println(lengtha);
-      Serial.println(lengthb);
+  //    Serial.println("Failed check at point 9");
+    //  Serial.println(lengtha);
+      //Serial.println(lengthb);
       return false;
     }
 

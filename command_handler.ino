@@ -76,8 +76,6 @@ void serialEvent(void)
 
 void serialEvent2(void)
 {
-  unsigned char cmd;
-  int param=0;
   while(Serial2.available())
   {
     cmdBuf2[cmdPos2++]=(char)Serial2.read();
@@ -94,42 +92,9 @@ void serialEvent2(void)
   if (cmdPos2==0 || ((cmdBuf2[cmdPos2-1]!='\n') && (cmdBuf2[cmdPos2-1]!='\r')))
     return;
   if(debug) print_cmdBuf2();
-  cmd=parse_cmd2(&param);
+  parse_cmd2();
   clear_cmdBuf2();
-  
-  if(debug)
-  {
-    Serial.print("Command: ");
-    Serial.print((int)cmd);
-    Serial.print(", Params: ");
-    Serial.print(param);
-    Serial.print(".\n");
-  }
-  
-  switch(cmd)
-  {
-    case CMDPING:
-      cmd_ping();
-      break;
-    case CMDDEBUG:
-      cmd_debug(param);
-      break;
-    case CMDRANGEA:
-      cmd_rangea();
-      break;
-    case CMDRANGEB:
-      cmd_rangeb();
-      break;
-    case CMDDETECT:
-      cmd_detect();
-      break;
 
-    case CMDUNKNOWN:
-      error("Unknown command");
-      break;
-    default:
-      error("The command has been disabled");
-  }
   if(Serial2.available())
     serialEvent2();
 }
@@ -158,28 +123,30 @@ unsigned char parse_cmd(int *param)
   return CMDUNKNOWN;
 }
 
-unsigned char parse_cmd2(int *param)
+int parse_cmd2(void)
 {
   if (!memcmp(cmdBuf2,"ping",4))
-    return CMDPING;
+    return cmd_ping();
   if (!memcmp(cmdBuf2,"debug",5))
   {
     if (!memcmp(cmdBuf2+6,"on",2))
-      *param=true;
+      return cmd_debug(true);
     else if (!memcmp(cmdBuf2+6,"off",3))
-      *param=false;
-    else
-      return CMDUNKNOWN;
-    return CMDDEBUG;
+      return cmd_debug(false);
+    
+    error("debug: wrong parameters");
+    return -1;
   }
   if (!memcmp(cmdBuf2,"detect",5))
-    return CMDDETECT;
+    return cmd_detect();
   if (!memcmp(cmdBuf2,"ra",2))
-    return CMDRANGEA;
+    return cmd_rangea();
   if (!memcmp(cmdBuf2,"rb",2))
-    return CMDRANGEB;
+    return cmd_rangeb();
+  if (!memcmp(cmdBuf2,"QU",2)) //Quaternion Update command
+    return cmd_QU((quaternion*)(cmdBuf2+2));
 
-  return CMDUNKNOWN;
+  error("Unknown command");
 }
 
 void print_cmdBuf(void)
@@ -200,7 +167,7 @@ void print_cmdBuf2(void)
 {
   Serial.print("Incomming command (");
   Serial.print(strlen(cmdBuf2));
-  Serial.print("):\n"); // a smiley
+  Serial.print("):\n");
   Serial.println(cmdBuf2);
 }
 
