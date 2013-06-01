@@ -49,7 +49,6 @@ int readWordWaitI2C(int deviceAddress) {
 */
 
 int readWordWaitI2C(int deviceAddress, unsigned char retryCount=0) {
-  unsigned char msb, lsb;
   Wire.requestFrom(deviceAddress, 2); // request two bytes
   while(Wire.available()<2) // wait until data available
   {
@@ -57,9 +56,7 @@ int readWordWaitI2C(int deviceAddress, unsigned char retryCount=0) {
       return -1;
     delay(10);
   }
-  msb = Wire.read();
-  lsb = Wire.read();
-  return (((int)msb<<8) | ((int)lsb));
+  return (Wire.read()<<8) | Wire.read();
 }
 
 int readReverseWordI2C(int deviceAddress) {

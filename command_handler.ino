@@ -2,7 +2,6 @@
 #define CMDPING    1 // echo test
 #define CMDRANGEA  2
 #define CMDRANGEB  3
-#define CMDDETECT  4
 #define CMDDEBUG   9 // toggle debug flag
 #define CMDUSR1    13
 #define CMDUSR2    14
@@ -60,9 +59,6 @@ void serialEvent(void)
     case CMDRANGEB:
       cmd_rangeb();
       break;
-    case CMDDETECT:
-      cmd_detect();
-      break;
 
     case CMDUNKNOWN:
       error("Unknown command");
@@ -76,20 +72,42 @@ void serialEvent(void)
 
 void serialEvent2(void)
 {
+  static char cmdLen=0;
+  char rc;
+  
   while(Serial2.available())
   {
-    cmdBuf2[cmdPos2++]=(char)Serial2.read();
-    if ((cmdBuf2[cmdPos2-1]=='\n') || (cmdBuf2[cmdPos2-1]=='\r'))
-      break;
-    if (cmdPos2==cmdBufLen)
+    rc=(char)Serial2.read();
+    if(cmdLen<0)
     {
-      error("The command is too long");
-      Serial2.flush();
-      clear_cmdBuf2();
-      break;
+      if(rc=='\r')
+        continue;
+      if(rc=='\n')
+        cmdLen--;
+      else
+        cmdLen=-1;
+      if(cmdLen==-3)
+        cmdLen=0;
+//      Serial.print("new cmdLen=");
+//      Serial.println(cmdLen, DEC);
+      continue;
     }
+    cmdBuf2[cmdPos2++]=rc;
+    if(cmdPos2==1)
+      cmdLen=cmdBuf2[0];
+    Serial.print("cmdLen=");
+    Serial.println(cmdLen, DEC);
+    if(cmdLen<3 || cmdLen>20)
+    {
+      cmdLen=-1;
+      cmdPos2=0;
+      error("invalid command len");
+      continue;
+    }
+    if (cmdPos2==cmdLen)
+      break;
   }
-  if (cmdPos2==0 || ((cmdBuf2[cmdPos2-1]!='\n') && (cmdBuf2[cmdPos2-1]!='\r')))
+  if (cmdPos2!=cmdLen)
     return;
   if(debug) print_cmdBuf2();
   parse_cmd2();
@@ -113,8 +131,6 @@ unsigned char parse_cmd(int *param)
       return CMDUNKNOWN;
     return CMDDEBUG;
   }
-  if (!memcmp(cmdBuf,"detect",5))
-    return CMDDETECT;
   if (!memcmp(cmdBuf,"ra",2))
     return CMDRANGEA;
   if (!memcmp(cmdBuf,"rb",2))
@@ -125,28 +141,27 @@ unsigned char parse_cmd(int *param)
 
 int parse_cmd2(void)
 {
-  if (!memcmp(cmdBuf2,"ping",4))
+  if (!memcmp(cmdBuf2+1,"ping",4))
     return cmd_ping();
-  if (!memcmp(cmdBuf2,"debug",5))
+  if (!memcmp(cmdBuf2+1,"debug",5))
   {
-    if (!memcmp(cmdBuf2+6,"on",2))
+    if (!memcmp(cmdBuf2+7,"on",2))
       return cmd_debug(true);
-    else if (!memcmp(cmdBuf2+6,"off",3))
+    else if (!memcmp(cmdBuf2+7,"off",3))
       return cmd_debug(false);
     
     error("debug: wrong parameters");
     return -1;
   }
-  if (!memcmp(cmdBuf2,"detect",5))
-    return cmd_detect();
-  if (!memcmp(cmdBuf2,"ra",2))
+  if (!memcmp(cmdBuf2+1,"ra",2))
     return cmd_rangea();
-  if (!memcmp(cmdBuf2,"rb",2))
+  if (!memcmp(cmdBuf2+1,"rb",2))
     return cmd_rangeb();
-  if (!memcmp(cmdBuf2,"QU",2)) //Quaternion Update command
-    return cmd_QU((quaternion*)(cmdBuf2+2));
+  if (!memcmp(cmdBuf2+1,"QU",2)) //Quaternion Update command
+    return cmd_QU((quaternion*)(cmdBuf2+3));
 
   error("Unknown command");
+  return -1;
 }
 
 void print_cmdBuf(void)

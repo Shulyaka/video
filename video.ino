@@ -13,6 +13,7 @@ bool debug=true;
 
 quaternion imu_q=ident;
 fixed imu_z=one>>2;
+fixed wall=0;
 
 void setup()  {
   Serial.begin(57600);
@@ -26,6 +27,7 @@ void setup()  {
 
   tv.fill(0);
   Serial.println("OK");
+  //sonar_address_change();  //only enable it once and with one sensor connected
 }
 
 void initOverlay() {
@@ -59,8 +61,8 @@ ISR(INT0_vect) {
 void loop() {
 
   cmd_rangea();
-  
-  cmd_detect();
+  cmd_rangeb();
+  DetectLandingPad();
 
   tv.delay_frame(5);
 
