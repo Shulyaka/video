@@ -23,7 +23,9 @@
 void sendByteI2C(int deviceAddress, byte dataValue) {
   Wire.beginTransmission(deviceAddress);
   Wire.write(dataValue);
+//  digitalWrite(13,HIGH);
   Wire.endTransmission();
+//  digitalWrite(13,LOW);
 }
 
 byte readByteI2C(int deviceAddress) {
@@ -49,7 +51,9 @@ int readWordWaitI2C(int deviceAddress) {
 */
 
 int readWordWaitI2C(int deviceAddress, unsigned char retryCount=0) {
+//  digitalWrite(13,HIGH);
   Wire.requestFrom(deviceAddress, 2); // request two bytes
+//  digitalWrite(13,LOW);
   while(Wire.available()<2) // wait until data available
   {
     if(!retryCount--)       // or retryCount is zero

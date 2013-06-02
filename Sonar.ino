@@ -1,79 +1,68 @@
-#define sonaraAddress 0x70 // page 4 of datasheet
-#define sonarbAddress 0x71 // custom address
+#define sonar_time 100
+
+const byte sonarAddress[] = {0x70, 0x71}; // page 4 of datasheet
 
 unsigned int rangea=0;
 unsigned int rangeb=0;
 
 void sonar_init(void)
 {
-  tv.set_vbi_hook(&sonar_callback);
+  tv.set_vbi_hook(&sonar_int);        //https://nootropicdesign.com/forum/viewtopic.php?f=25&t=2394&p=2648&hilit=I2C#p2648
 }
 
-void sonar_callback(void)
+void sonar_int(void)
 {
-  static unsigned char sonar_num=-1;
+  static unsigned char sonar_num=0;
   static unsigned long prev_time;
   unsigned long cur_time=millis();
 
-  if(sonar_num==-1) //first time
+  if(sonar_num==0) //first time
   {
-    sonar_num=0;
+    sonar_num=1;
     prev_time=cur_time;
-    sendByteI2C(sonaraAddress, 0x51);
+    interrupts();
+    sendByteI2C(sonarAddress[0], 0x51);
     return;
   }
 
-  if(cur_time-prev_time<100)
+  if(cur_time-prev_time<sonar_time)
     return;
   
   prev_time=cur_time;
-  
-  if(sonar_num==0)
+
+  interrupts();
+
+  if(sonar_num==1)
   {
-    rangea=readWordI2C(sonaraAddress);
+    rangea=readWordWaitI2C(sonarAddress[0],1);
 
     imu_z=((long int)rangea)<<15;
     Serial2.write("RU");
     Serial2.write((unsigned char *)&imu_z, sizeof(fixed));
     Serial2.write("\n");
     
-    sendByteI2C(sonarbAddress, 0x51);
+    sendByteI2C(sonarAddress[1], 0x51);
+    sonar_num=2;
   }
   else
   {
-    rangeb=readWordI2C(sonarbAddress);
+    rangeb=readWordWaitI2C(sonarAddress[1],1);
 
     wall=((long int)rangeb)<<15;
     Serial2.write("WU");
     Serial2.write((unsigned char *)&wall, sizeof(fixed));
     Serial2.write("\n");
     
-    sendByteI2C(sonaraAddress, 0x51);
+    sendByteI2C(sonarAddress[0], 0x51);
+    sonar_num=1;
   }
-  
-  sonar_num^=1;
-}
-/*
-void sonara_measure(void)
-{
-  sendByteI2C(sonaraAddress, 0x51);
-  delay(100);
-  rangea=readWordWaitI2C(sonaraAddress, 10);
 }
 
-void sonarb_measure(void)
+void sonar_address_change(void) //only call it once and with one sensor connected
 {
-  sendByteI2C(sonarbAddress, 0x51);
-  delay(100);
-  rangeb=readWordWaitI2C(sonarbAddress, 10);
-}
-*/
-void sonar_address_change(void)
-{
-  Wire.beginTransmission(sonaraAddress);
+  Wire.beginTransmission(sonarAddress[0]);
   Wire.write(0xAA);
   Wire.write(0xA5);
-  Wire.write(sonarbAddress<<1);
+  Wire.write(sonarAddress[1]<<1);
   Wire.endTransmission();
-  
 }

@@ -12,10 +12,11 @@ TVout tv;
 bool debug=true;
 
 quaternion imu_q=ident;
-fixed imu_z=one>>2;
-fixed wall=0;
+fixed imu_z=0xA0000;
+fixed wall=0xA0000;
 
 void setup()  {
+  pinMode(13, OUTPUT);
   Serial.begin(57600);
   Serial2.begin(115200);
   Serial.println("\nInitializing... ");
@@ -38,9 +39,10 @@ void initOverlay() {
   // Enable input capture interrupt
   TIMSK1 |= _BV(ICIE1);
 
-  // Enable external interrupt INT0 on pin 2 with falling edge.
-  EIMSK = _BV(INT0);
-  EICRA = _BV(ISC01);
+  // Enable external interrupt INT3 on pin 18 with falling edge.
+//  EIMSK = _BV(INT3);
+//  EICRA = _BV(ISC31);
+  attachInterrupt(5, Reset_scanLine, FALLING);
 }
 
 void initInputProcessing() {
@@ -54,9 +56,14 @@ void initInputProcessing() {
   ACSR &= ~_BV(ACIC);  // disable analog comparator input capture
 }
 
-ISR(INT0_vect) {
+//ISR(INT3_vect) {
+//  display.scanLine = 0;
+//}
+
+void Reset_scanLine(void) {
   display.scanLine = 0;
 }
+
 
 void loop() {
 
