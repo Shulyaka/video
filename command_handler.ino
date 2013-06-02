@@ -10,8 +10,8 @@
 #define cmdBufLen 127
 char cmdBuf[cmdBufLen]={0};
 unsigned char cmdPos=0;
-char cmdBuf2[cmdBufLen]={0};
-unsigned char cmdPos2=0;
+//char cmdBuf2[cmdBufLen]={0};
+//unsigned char cmdPos2=0;
 
 void serialEvent(void)
 {
@@ -73,6 +73,8 @@ void serialEvent(void)
 void serialEvent2(void)
 {
   static char cmdLen=0;
+  static char cmdBuf2[cmdBufLen]={0};
+  unsigned char cmdPos2=0;
   char rc;
   
   while(Serial2.available())
@@ -80,38 +82,42 @@ void serialEvent2(void)
     rc=(char)Serial2.read();
     if(cmdLen<0)
     {
-      if(rc=='\r')
-        continue;
       if(rc=='\n')
         cmdLen--;
       else
         cmdLen=-1;
-      if(cmdLen==-3)
+      if(cmdLen==-4)
         cmdLen=0;
-//      Serial.print("new cmdLen=");
-//      Serial.println(cmdLen, DEC);
       continue;
     }
     cmdBuf2[cmdPos2++]=rc;
     if(cmdPos2==1)
-      cmdLen=cmdBuf2[0];
-    Serial.print("cmdLen=");
-    Serial.println(cmdLen, DEC);
-    if(cmdLen<3 || cmdLen>20)
+      cmdLen=cmdBuf2[0]+3;
+    if(cmdLen<4 || cmdLen>25)
     {
       cmdLen=-1;
       cmdPos2=0;
       error("invalid command len");
       continue;
     }
-    if (cmdPos2==cmdLen)
+    if (cmdPos2-1==cmdLen)
       break;
   }
-  if (cmdPos2!=cmdLen)
+  if (cmdPos2-1!=cmdLen)
     return;
-  if(debug) print_cmdBuf2();
-  parse_cmd2();
-  clear_cmdBuf2();
+  if(cmdBuf2[cmdPos2-1]!='\n' || cmdBuf2[cmdPos2-2]!='\n' || cmdBuf2[cmdPos2-3]!='\n')
+  {
+    error("bad command trailer");
+    cmdLen=-1;
+    cmdPos2=0;
+    if(Serial2.available())
+      serialEvent2();
+    return;
+  }
+  
+//  if(debug) print_cmdBuf2(cmdBuf2, cmdLen);
+  parse_cmd2(cmdBuf2+1, cmdLen-4);
+  cmdPos2=0;
 
   if(Serial2.available())
     serialEvent2();
@@ -139,26 +145,26 @@ unsigned char parse_cmd(int *param)
   return CMDUNKNOWN;
 }
 
-int parse_cmd2(void)
+int parse_cmd2(char *cmdBuf2, unsigned char cmdLen)
 {
-  if (!memcmp(cmdBuf2+1,"ping",4))
+  if (!memcmp(cmdBuf2,"ping",4))
     return cmd_ping();
-  if (!memcmp(cmdBuf2+1,"debug",5))
+  if (!memcmp(cmdBuf2,"debug",5))
   {
-    if (!memcmp(cmdBuf2+7,"on",2))
+    if (!memcmp(cmdBuf2+6,"on",2))
       return cmd_debug(true);
-    else if (!memcmp(cmdBuf2+7,"off",3))
+    else if (!memcmp(cmdBuf2+6,"off",3))
       return cmd_debug(false);
     
     error("debug: wrong parameters");
     return -1;
   }
-  if (!memcmp(cmdBuf2+1,"ra",2))
+  if (!memcmp(cmdBuf2,"ra",2))
     return cmd_rangea();
-  if (!memcmp(cmdBuf2+1,"rb",2))
+  if (!memcmp(cmdBuf2,"rb",2))
     return cmd_rangeb();
-  if (!memcmp(cmdBuf2+1,"QU",2)) //Quaternion Update command
-    return cmd_QU((quaternion*)(cmdBuf2+3));
+  if (!memcmp(cmdBuf2,"QU",2)) //Quaternion Update command
+    return cmd_QU((quaternion*)(cmdBuf2+2));
 
   error("Unknown command");
   return -1;
@@ -178,17 +184,14 @@ void clear_cmdBuf(void)
   cmdPos=0;
 }
 
-void print_cmdBuf2(void)
+void print_cmdBuf2(char *cmdBuf2, unsigned char cmdLen)
 {
   Serial.print("Incomming command (");
   Serial.print(strlen(cmdBuf2));
+  Serial.print(", ");
+  Serial.print(cmdLen);
   Serial.print("):\n");
   Serial.println(cmdBuf2);
 }
 
-void clear_cmdBuf2(void)
-{
-  memset(cmdBuf2,'\0',cmdBufLen);
-  cmdPos2=0;
-}
 
