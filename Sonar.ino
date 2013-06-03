@@ -36,6 +36,9 @@ void sonar_int(void)
   {
     rangea=readWordWaitI2C(sonarAddress[0],1);
 
+    if(rangea==20)
+      rangea=0;
+
     imu_z=((long int)rangea)<<15;
     Serial2.write(2+sizeof(fixed));
     Serial2.write("RU");
@@ -48,6 +51,9 @@ void sonar_int(void)
   else
   {
     rangeb=readWordWaitI2C(sonarAddress[1],1);
+
+    if(rangeb==20)
+      rangeb=0;
 
     wall=((long int)rangeb)<<15;
     Serial2.write(2+sizeof(fixed));

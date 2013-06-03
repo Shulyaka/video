@@ -3,14 +3,14 @@ int DetectLandingPad(void)
   unsigned char x, y;
   quaternion q=imu_q;
   quaternion cam=ident;
-  fixed h_res=one>>4;
-  fixed w_res=one>>4;
+  fixed h_res=one>>10;
+  fixed w_res=one>>10;
   
   fixed arr[3];
   
   if(!CaptureAndFind(&x, &y))
   {
-    Serial.println("Object not detected");
+    //Serial.println("Object not detected");
     return 1;
   }
   
@@ -59,10 +59,11 @@ int DetectLandingPad(void)
   print("imu_x", arr[0]);
   print("imu_y", arr[1]);
   
+  Serial2.write(2+2*sizeof(fixed));
   Serial2.write("LU");
   Serial2.write((unsigned char *)&arr[0], sizeof(fixed));
   Serial2.write((unsigned char *)&arr[1], sizeof(fixed));
-  Serial2.write("\n");
+  Serial2.write("\n\n\n");
   
   return 0;
 }

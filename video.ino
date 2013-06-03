@@ -12,8 +12,8 @@ TVout tv;
 bool debug=true;
 
 quaternion imu_q=ident;
-fixed imu_z=0xA0000;
-fixed wall=0xA0000;
+fixed imu_z=0;
+fixed wall=one>>2;
 
 void setup()  {
   pinMode(13, OUTPUT);
@@ -67,8 +67,8 @@ void Reset_scanLine(void) {
 
 void loop() {
 
-  cmd_rangea();
-  cmd_rangeb();
+//  cmd_rangea();
+//  cmd_rangeb();
   DetectLandingPad();
 
   tv.delay_frame(5);
