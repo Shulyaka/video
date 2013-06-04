@@ -3,8 +3,8 @@ int DetectLandingPad(void)
   unsigned char x, y;
   quaternion q=imu_q;
   quaternion cam=ident;
-  fixed h_res=one>>10;
-  fixed w_res=one>>10;
+  fixed h_res=0x28000000LL;
+  fixed w_res=0x28000000LL;
   
   fixed arr[3];
   
@@ -15,21 +15,21 @@ int DetectLandingPad(void)
   }
   
   Serial.print("Object detected at ");
-  Serial.print(x);
+  Serial.print(x-W/2);
   Serial.print(", ");
-  Serial.print(y);
+  Serial.print(y-H/2);
   Serial.println(".");
   tv.draw_rect(x-5, y-5, 10, 10, 1);
   
-  arr[0]=fixed((x-H/2)*0x2000000LL)*h_res;   //0x20000000LL=one/(H/2)
+  arr[0]=fixed((x-W/2)*0x2000000LL)*h_res;   //0x20000000LL=one/(H/2)
   arr[1]=fixed((y-H/2)*0x2000000LL)*w_res;
   arr[2]=sqrt(one%one-arr[0]%arr[0]-arr[1]%arr[1]);
-  
-  q=q*cam*sqrt(quaternion(arr[2], -arr[1], arr[0], 0));
-  
+  print("imu_q", q);
+  q=q*cam*sqrt(quaternion(arr[2], -arr[0], arr[1], 0));
+  print("r", sqrt(quaternion(arr[2], -arr[0], arr[1], 0)));
   print("q", q);
   
-  arr[0]=-(q.w*q.y+q.x*q.z)<<1;         //q*quaternion(0,0,0,one)*conjugate(q);
+  arr[0]=(q.w*q.y+q.x*q.z)<<1;         //q*quaternion(0,0,0,one)*conjugate(q);
   arr[1]=-(q.w*q.x+q.y*q.z)<<1;
   arr[2]=one-((q.x*q.x+q.y*q.y)<<1);
   
@@ -58,6 +58,11 @@ int DetectLandingPad(void)
 
   print("imu_x", arr[0]);
   print("imu_y", arr[1]);
+
+  Serial.print(arr[0].value>>15);
+  Serial.print(", ");
+  Serial.println(arr[1].value>>15);
+  Serial.println(rangea);
   
   Serial2.write(2+2*sizeof(fixed));
   Serial2.write("LU");
@@ -335,11 +340,12 @@ bool MatchX(unsigned char x0, unsigned char y0, unsigned char *cx, unsigned char
   }
   else if(lengtha>>2 > (ax-bx))
   {
-    Serial.print("Might be a + at (");
+/*    Serial.print("Might be a + at (");
     Serial.print(x0);
     Serial.print(", ");
     Serial.print(y0);
     Serial.println(")");
+*/
   }
   else
     return false;

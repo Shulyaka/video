@@ -34,6 +34,6 @@ int cmd_rangeb(void)
 int cmd_QU(quaternion *q)
 {
   imu_q=*q;
-  print("q", imu_q);
+  //print("q", imu_q);
   return 0;
 }
