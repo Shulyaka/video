@@ -3,8 +3,8 @@
 
 const byte sonarAddress[] = {0x70, 0x71}; // page 4 of datasheet
 
-unsigned int rangea=0;
-unsigned int rangeb=0;
+int rangea=0;
+int rangeb=745;
 
 void sonar_init(void)
 {
@@ -42,10 +42,20 @@ void sonar_int(void)
     {
       rangea=tmprange;
       imu_z=((long int)tmprange)<<15;
+      
+      Serial.print("Range A = ");
+      Serial.println(rangea);
+      
       Serial2.write(2+sizeof(fixed));
       Serial2.write("RU");
       Serial2.write((unsigned char *)&imu_z, sizeof(fixed));
       Serial2.write("\n\n\n");
+    }
+    else
+    {
+      Serial.print("Range A ignored (");
+      Serial.print(tmprange);
+      Serial.println(")");
     }
     
     sendByteI2C(sonarAddress[1], 0x51);
