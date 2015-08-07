@@ -18,29 +18,32 @@
   along with this program. If not, see <http://www.gnu.org/licenses/>. 
 */
 
+/* Modified by Denis Shulyaka */
+
 // I2C functions
 
-void sendByteI2C(int deviceAddress, byte dataValue) {
+void sendByteI2C(const int deviceAddress, const byte dataValue) {
   Wire.beginTransmission(deviceAddress);
   Wire.write(dataValue);
-//  digitalWrite(13,HIGH);
   Wire.endTransmission();
-//  digitalWrite(13,LOW);
 }
 
-byte readByteI2C(int deviceAddress) {
+byte readByteI2C(const int deviceAddress) {
     Wire.requestFrom(deviceAddress, 1);
     return Wire.read();
 }
 
-int readWordI2C(int deviceAddress) {
+int readWordI2C(const int deviceAddress) {
   Wire.requestFrom(deviceAddress, 2);
   return (Wire.read() << 8) | Wire.read();
 }
 
-/*
+int readWordI2C() {
+  return (Wire.read() << 8) | Wire.read();
+}
+
 int readWordWaitI2C(int deviceAddress) {
-  unsigned char msb, lsb;
+  byte msb, lsb;
   Wire.requestFrom(deviceAddress, 2); // request two bytes
   while(!Wire.available()); // wait until data available
   msb = Wire.read();
@@ -48,12 +51,9 @@ int readWordWaitI2C(int deviceAddress) {
   lsb = Wire.read();
   return (((int)msb<<8) | ((int)lsb));
 }
-*/
 
 int readWordWaitI2C(int deviceAddress, unsigned char retryCount=0) {
-//  digitalWrite(13,HIGH);
   Wire.requestFrom(deviceAddress, 2); // request two bytes
-//  digitalWrite(13,LOW);
   while(Wire.available()<2) // wait until data available
   {
     if(!retryCount--)       // or retryCount is zero
@@ -63,37 +63,39 @@ int readWordWaitI2C(int deviceAddress, unsigned char retryCount=0) {
   return (Wire.read()<<8) | Wire.read();
 }
 
-int readReverseWordI2C(int deviceAddress) {
-  byte lowerByte;
+int readReverseWordI2C(const int deviceAddress) {
   Wire.requestFrom(deviceAddress, 2);
-  lowerByte = Wire.read();
-  return (Wire.read() << 8) | lowerByte;
+  return Wire.read()|(Wire.read() << 8);
 }
 
-byte readWhoI2C(int deviceAddress) {
+int readReverseWordI2C() {
+  return Wire.read()|(Wire.read() << 8);
+}
+
+byte readWhoI2C(const int deviceAddress) {
   // read the ID of the I2C device
   sendByteI2C(deviceAddress, 0x00);
   delay(100);
   return readByteI2C(deviceAddress);
 }
 
-byte readRegisterI2C(int deviceAddress, byte dataAddress) {
+byte readRegisterI2C(const int deviceAddress, const byte dataAddress) {
   sendByteI2C(deviceAddress, dataAddress);
   return readByteI2C(deviceAddress);
 }
 
-byte readRegisterI2C(int deviceAddress, byte dataAddress, byte dataMask) {
+byte readRegisterI2C(const int deviceAddress, const byte dataAddress, const byte dataMask) {
   return readRegisterI2C(deviceAddress, dataAddress) & dataMask;
 }
 
-void updateRegisterI2C(int deviceAddress, byte dataAddress, byte dataValue) {
+void updateRegisterI2C(const int deviceAddress, const byte dataAddress, const byte dataValue) {
   Wire.beginTransmission(deviceAddress);
   Wire.write(dataAddress);
   Wire.write(dataValue);
   Wire.endTransmission();
 }  
 
-void updateRegisterI2C(int deviceAddress, byte dataAddress, byte dataValue, byte dataMask) {
+void updateRegisterI2C(const int deviceAddress, const byte dataAddress, const byte dataValue, const byte dataMask) {
   updateRegisterI2C(deviceAddress, dataAddress, readRegisterI2C(deviceAddress, dataAddress, ~dataMask) | (dataValue & dataMask) );
 }
 

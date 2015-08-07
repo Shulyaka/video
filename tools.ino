@@ -1,6 +1,6 @@
-bool IsLinkedLine(unsigned char x1, unsigned char y1, unsigned char x2, unsigned char y2)
+bool IsLinkedLine(byte x1, byte y1, byte x2, byte y2)
 {
-  unsigned char i, j;
+  byte i, j;
   i=median(x1, x2);
   j=median(y1, y2);
   if((!tv.get_pixel(i, j)) && !((i>0)&&tv.get_pixel(i-1, j)) && !((j>0) && tv.get_pixel(i, j-1)) && !((i<W-1) && tv.get_pixel(i+1, j)) && !((j<H-1) && tv.get_pixel(i, j+1)))  //check the nearest also
@@ -10,9 +10,9 @@ bool IsLinkedLine(unsigned char x1, unsigned char y1, unsigned char x2, unsigned
   return IsLinkedLine(i, j, x2, y2) && IsLinkedLine(x1, y1, i, j);
 }
 
-unsigned char length_dr(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte length_dr(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i<W-1)&&(j<H-1))
   {
     if(tv.get_pixel(i, j+1) && IsLinkedLine(x, y, i, j+1))
@@ -33,9 +33,9 @@ unsigned char length_dr(unsigned char x, unsigned char y, unsigned char *a, unsi
   return length;
 }
 
-unsigned char length_rd(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte length_rd(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i<W-1)&&(j<H-1))
   {
     if(tv.get_pixel(i+1, j) && IsLinkedLine(x, y, i+1, j))
@@ -56,9 +56,9 @@ unsigned char length_rd(unsigned char x, unsigned char y, unsigned char *a, unsi
   return length;
 }
 
-unsigned char length_dl(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte length_dl(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i>0)&&(j<H-1))
   {
     if(tv.get_pixel(i, j+1) && IsLinkedLine(x, y, i, j+1))
@@ -79,9 +79,9 @@ unsigned char length_dl(unsigned char x, unsigned char y, unsigned char *a, unsi
   return length;
 }
 
-unsigned char length_ld(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte length_ld(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i>0)&&(j<H-1))
   {
     if(tv.get_pixel(i-1, j) && IsLinkedLine(x, y, i-1, j))
@@ -102,9 +102,9 @@ unsigned char length_ld(unsigned char x, unsigned char y, unsigned char *a, unsi
   return length;
 }
 
-unsigned char length_ul(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte length_ul(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i>0)&&(j>0))
   {
     if(tv.get_pixel(i, j-1) && IsLinkedLine(x, y, i, j-1))
@@ -125,9 +125,9 @@ unsigned char length_ul(unsigned char x, unsigned char y, unsigned char *a, unsi
   return length;
 }
 
-unsigned char length_lu(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte length_lu(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i>0)&&(j>0))
   {
     if(tv.get_pixel(i-1, j) && IsLinkedLine(x, y, i-1, j))
@@ -148,9 +148,9 @@ unsigned char length_lu(unsigned char x, unsigned char y, unsigned char *a, unsi
   return length;
 }
 
-unsigned char length_ur(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte length_ur(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i<W-1)&&(j>0))
   {
     if(tv.get_pixel(i, j-1) && IsLinkedLine(x, y, i, j-1))
@@ -171,9 +171,9 @@ unsigned char length_ur(unsigned char x, unsigned char y, unsigned char *a, unsi
   return length;
 }
 
-unsigned char length_ru(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte length_ru(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i<W-1)&&(j>0))
   {
     if(tv.get_pixel(i+1, j) && IsLinkedLine(x, y, i+1, j))
@@ -194,9 +194,9 @@ unsigned char length_ru(unsigned char x, unsigned char y, unsigned char *a, unsi
   return length;
 }
 
-unsigned char length_r(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte length_r(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, length=0;
+  byte i=x, length=0;
   while (i<W-1)
   {
     if(tv.get_pixel(i+1, y) && IsLinkedLine(x, y, i+1, y))
@@ -212,9 +212,9 @@ unsigned char length_r(unsigned char x, unsigned char y, unsigned char *a, unsig
   return length;
 }
 
-unsigned char length_l(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte length_l(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, length=0;
+  byte i=x, length=0;
   while (i>0)
   {
     if(tv.get_pixel(i-1, y) && IsLinkedLine(x, y, i-1, y))
@@ -230,15 +230,15 @@ unsigned char length_l(unsigned char x, unsigned char y, unsigned char *a, unsig
   return length;
 }
 
-inline unsigned char median(unsigned char a, unsigned char b)
+inline byte median(byte a, byte b)
 {return (b>a)?((b-a)>>1)+a:((a-b)>>1)+b;}
 
-inline unsigned char dif(unsigned char a, unsigned char b)
+inline byte dif(byte a, byte b)
 {return (b>a)?b-a:a-b;}
 
-unsigned char move_dr(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte move_dr(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i<W-1)&&(j<H-1))
   {
     if(tv.get_pixel(i, j+1))
@@ -259,9 +259,9 @@ unsigned char move_dr(unsigned char x, unsigned char y, unsigned char *a, unsign
   return length;
 }
 
-unsigned char move_rd(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte move_rd(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i<W-1)&&(j<H-1))
   {
     if(tv.get_pixel(i+1, j))
@@ -282,9 +282,9 @@ unsigned char move_rd(unsigned char x, unsigned char y, unsigned char *a, unsign
   return length;
 }
 
-unsigned char move_dl(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte move_dl(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i>0)&&(j<H-1))
   {
     if(tv.get_pixel(i, j+1))
@@ -305,9 +305,9 @@ unsigned char move_dl(unsigned char x, unsigned char y, unsigned char *a, unsign
   return length;
 }
 
-unsigned char move_ld(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte move_ld(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i>0)&&(j<H-1))
   {
     if(tv.get_pixel(i-1, j))
@@ -328,9 +328,9 @@ unsigned char move_ld(unsigned char x, unsigned char y, unsigned char *a, unsign
   return length;
 }
 
-unsigned char move_ul(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte move_ul(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i>0)&&(j>0))
   {
     if(tv.get_pixel(i, j-1))
@@ -351,9 +351,9 @@ unsigned char move_ul(unsigned char x, unsigned char y, unsigned char *a, unsign
   return length;
 }
 
-unsigned char move_lu(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte move_lu(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i>0)&&(j>0))
   {
     if(tv.get_pixel(i-1, j))
@@ -374,9 +374,9 @@ unsigned char move_lu(unsigned char x, unsigned char y, unsigned char *a, unsign
   return length;
 }
 
-unsigned char move_ur(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte move_ur(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i<W-1)&&(j>0))
   {
     if(tv.get_pixel(i, j-1))
@@ -397,9 +397,9 @@ unsigned char move_ur(unsigned char x, unsigned char y, unsigned char *a, unsign
   return length;
 }
 
-unsigned char move_ru(unsigned char x, unsigned char y, unsigned char *a, unsigned char *b)
+byte move_ru(byte x, byte y, byte *a, byte *b)
 {
-  unsigned char i=x, j=y, length=0;
+  byte i=x, j=y, length=0;
   while ((i<W-1)&&(j>0))
   {
     if(tv.get_pixel(i+1, j))

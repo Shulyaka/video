@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <Wire.h>
 #include <TVout.h>
 
@@ -75,13 +76,13 @@ void loop() {
 
 }
 
-void error (const char *msg)
+void error(const char *msg)
 {
   Serial.print("Error: ");
   Serial.println(msg);
 }
 
-void print(fixed val)
+void print(const fixed &val)
 {
   int v;
   if(val==one)
@@ -110,7 +111,7 @@ void print(fixed val)
   }
 }
 
-void print(const char *name, fixed val)
+void print(const char *name, const fixed &val)
 {
   Serial.print(name);
   Serial.print(" =");
@@ -118,7 +119,7 @@ void print(const char *name, fixed val)
   Serial.println("");
 }
 
-void print(const char *name, quaternion val)
+void print(const char *name, const quaternion &val)
 {
   Serial.print(name);
   Serial.print(" = [");

@@ -1,6 +1,6 @@
 int DetectLandingPad(void)
 {
-  unsigned char x, y;
+  byte x, y;
   quaternion q=imu_q;
   quaternion cam=ident;
   fixed h_res=0x28000000LL;
@@ -23,7 +23,7 @@ int DetectLandingPad(void)
   
   arr[0]=fixed((x-W/2)*0x2000000LL)*h_res;   //0x20000000LL=one/(H/2)
   arr[1]=fixed((y-H/2)*0x2000000LL)*w_res;
-  arr[2]=sqrt(one%one-arr[0]%arr[0]-arr[1]%arr[1]);
+  arr[2]=sqrt(lsq(one)-lsq(arr[0])-lsq(arr[1]));
   print("imu_q", q);
   q=q*cam*sqrt(quaternion(arr[2], -arr[0], arr[1], 0));
   print("r", sqrt(quaternion(arr[2], -arr[0], arr[1], 0)));
@@ -39,19 +39,19 @@ int DetectLandingPad(void)
   
   if(arr[2]>=imu_z)
   {
-    arr[2]=imu_z%one/arr[2];
+    arr[2]=lfixed(imu_z)/arr[2];
     arr[0]=arr[0]*arr[2];
     arr[1]=arr[1]*arr[2];
   }
   else
   {
-    arr[2]=arr[2]%one/imu_z;
+    arr[2]=lfixed(arr[2])/imu_z;
     if(arr[0]<arr[2])
-      arr[0]=arr[0]%one/arr[2];
+      arr[0]=lfixed(arr[0])/arr[2];
     else
       arr[0]=one;
     if(arr[1]<arr[2])
-      arr[1]=arr[1]%one/arr[2];
+      arr[1]=lfixed(arr[1])/arr[2];
     else
       arr[1]=one;
   }
@@ -66,16 +66,16 @@ int DetectLandingPad(void)
   
   Serial2.write(2+2*sizeof(fixed));
   Serial2.write("LU");
-  Serial2.write((unsigned char *)&arr[0], sizeof(fixed));
-  Serial2.write((unsigned char *)&arr[1], sizeof(fixed));
+  Serial2.write((byte *)&arr[0], sizeof(fixed));
+  Serial2.write((byte *)&arr[1], sizeof(fixed));
   Serial2.write("\n\n\n");
   
   return 0;
 }
 
-bool CaptureAndFind(unsigned char *cx, unsigned char *cy)
+bool CaptureAndFind(byte *cx, byte *cy)
 {
-  unsigned char x, y;
+  byte x, y;
 
   tv.capture();
   tv.fill(INVERT);
@@ -106,9 +106,9 @@ bool CaptureAndFind(unsigned char *cx, unsigned char *cy)
 
 void FilterNoise(void)  //filters the noise in the frame
 {                       //currently is too slow
-  unsigned char c, n, cp, cn;
-  for (unsigned char x=1; x<W-1; x++)
-    for (unsigned char y=1; y<H-1; y++)
+  byte c, n, cp, cn;
+  for (byte x=1; x<W-1; x++)
+    for (byte y=1; y<H-1; y++)
     {
       if(y!=1)
         cp=c;
@@ -123,9 +123,9 @@ void FilterNoise(void)  //filters the noise in the frame
     }
 }
 
-void ClearArea(unsigned char x, unsigned char y)  //Clears the linked area recursively
+void ClearArea(byte x, byte y)  //Clears the linked area recursively
 {                                                 //the function may be optimized to exclude bound search in certain cases
-  unsigned char r, i;                             //stack usage may also be optimized
+  byte r, i;                             //stack usage may also be optimized
   for(r=x; (r<W)&&(tv.get_pixel(r, y)); r++)  //find the right bound
     continue;                                     //the bound search may also be optimized by probing by a batch of 8 points, might require an enhancement of tvout library
 
@@ -170,10 +170,10 @@ void ClearArea(unsigned char x, unsigned char y)  //Clears the linked area recur
   return;
 }
 
-bool MatchX(unsigned char x0, unsigned char y0, unsigned char *cx, unsigned char *cy)  //returns true if the area is a cross (X)
+bool MatchX(byte x0, byte y0, byte *cx, byte *cy)  //returns true if the area is a cross (X)
 {                                              //the function assumes that we are close to the top of the object
-  unsigned char lengtha, lengthb;
-  unsigned char i, j, ax, ay, bx, by, x3, y3, x6, y6, x9, y9;
+  byte lengtha, lengthb;
+  byte i, j, ax, ay, bx, by, x3, y3, x6, y6, x9, y9;
 
   move_ul(x0, y0, &x0, &y0);
   lengtha=length_dr(x0, y0, &ax, &ay);// + length_ul(x0, y0, &i, &j);
